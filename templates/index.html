@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacts</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <style>
+    body{
+      background-color: #eeeeee;
+      font-family: 'Montserrat';
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .header{
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-bottom: 30px;
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 8px 0 rgba(119, 119, 119, 0.2), 0 6px 20px 0 rgba(119, 119, 119, 0.2);
+    }
+    
+    td, th {
+      background-color: #ffffff;
+      border-top: 1px solid #eeeeee;
+      border-bottom: 1px solid #eeeeee;
+      text-align: left;
+      padding: 8px;
+      padding-left: 20px;
+    }
+
+    input{
+      outline: none;
+      border: 1px solid lightgray;
+      padding-left: 8px;
+      padding-right: 8px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      border-radius: 5px;
+    }
+    input:focus{
+      border: 2px solid #5195ee;
+    }
+
+    .contact-button{
+      font-family: 'Montserrat';
+      color: #ffffff;
+      background-color: #1a73e8;
+      outline: none;
+      border: none;
+      border-radius: 5px;
+      padding: 8px;
+      padding-left: 20px;
+      padding-right: 20px;
+      cursor: pointer;
+    }
+    .contact-button:focus{
+      background-color: #5195ee;
+    }
+
+    .del{
+      visibility: hidden;
+      float: right;
+      background: tomato;
+      border: none;
+      border-radius: 10px;
+      width: 32px;
+      height: 32px;
+      justify-content: center;
+      padding: 8px;
+      text-align: center;
+      align-items: center;
+      outline: none;
+      display: flex;
+      cursor: pointer;
+    }
+    .del:active{
+      background: #b40000;
+    }
+    i{
+      color: #ffffff;
+      font-size: 40px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1 class="header">Contacts</h1>
+
+  <table>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>Contact</th>
+    </tr>
+    
+    {% for item in data %}
+     <tr>
+      <td>{{item.id}}</td>
+      <td>{{item.name}}</td>
+      <td>
+        {{item.contact}}
+        <button class="del"><i class="fa fa-trash fa-lg"></i></button>
+      </td>
+     </tr>
+    {% endfor %}
+  </table>
+
+  <form method="POST" action="/add-data" style="display: none;">
+    <input type="text" name="name" required placeholder="Name"><br><br>
+    <input type="tel" name="contact" required maxlength="10" placeholder="Contact Number"><br>
+    
+    <button class="contact-button" type="submit" name="submit" value="Submit" style="margin-top: 30px;">
+      <b>Add Contact</b>
+    </button>
+  </form>
+
+  <button class="contact-button" onclick="displayForm()">
+    <b>New Contact</b>
+  </button>
+</body>
+
+<script>
+  document.querySelectorAll('.del').forEach(item => {
+    var row = item.parentElement.parentNode;
+
+    row.addEventListener("mouseover", ()=>{
+      row.querySelector('.del').style.visibility="visible";
+    })
+
+    row.addEventListener("mouseout", ()=>{
+      row.querySelector('.del').style.visibility="hidden";
+    })
+
+    item.addEventListener('click', (event)=>{
+      var contactId = parseInt(row.firstElementChild.textContent);
+      var contactName = row.firstElementChild.nextElementSibling.textContent;
+      var contactNumber = parseInt(row.firstElementChild.nextElementSibling.nextElementSibling.textContent.trim());
+
+      var contactJson = {'id': contactId, 'name': contactName, 'contact': contactNumber, 'done': 0};
+
+      fetch('/delete-data', {
+        method: "POST", body: JSON.stringify(contactJson),
+        headers: {'Accept': 'application/json', 'Content-Type': 'application/json'}
+      }).then(()=>{window.location.reload()})
+    })
+  })
+
+  function displayForm(){
+    document.getElementsByTagName('form')[0].style.display = 'block';
+    document.getElementsByClassName('contact-button')[1].style.display = 'none';
+  }
+</script>
+</html>
